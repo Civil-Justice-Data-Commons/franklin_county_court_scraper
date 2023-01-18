@@ -1,0 +1,507 @@
+
+<!doctype html>
+<!--[if lt IE 7]>      <html lang="en" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html lang="en" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html lang="en" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="en" class="no-js"> <!--<![endif]-->
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- http://realfavicongenerator.net/ -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=WGaEXQLByx">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png?v=WGaEXQLByx" sizes="32x32">
+    <link rel="icon" type="image/png" href="/favicon-16x16.png?v=WGaEXQLByx" sizes="16x16">
+    <link rel="manifest" href="/manifest.json?v=WGaEXQLByx">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg?v=WGaEXQLByx" color="#333333">
+    <link rel="shortcut icon" href="/favicon.ico?v=WGaEXQLByx">
+    <meta name="apple-mobile-web-app-title" content="FCMC Clerk">
+    <meta name="application-name" content="FCMC Clerk">
+    <meta name="theme-color" content="#eeeeee">
+
+    <title>Search Records</title>
+    
+
+    <link rel="stylesheet" href="/build/css/all-9e29a338.css">
+
+        <meta name="description" content="Search public access records online provided by Franklin County Municipal Court Clerk Lori M. Tyack. Find court dates, amount due, warrant status, and more."/>
+
+    <style>
+        @media (max-width: 768px) {
+            .form-inline .form-control {
+                display: inline-block;
+                width: auto;
+                vertical-align: middle;
+                margin-bottom: 0;
+            }
+
+            .form-results-type {
+                margin-bottom: 0;
+            }
+
+            .panel-form-inline {
+                padding-top: 3px;
+                padding-bottom: 3px;
+            }
+        }
+
+    </style>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="/js/html5shiv.min.js"></script>
+        <script src="/js/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+    <a href="#page" class="sr-only sr-only-focusable">Skip to main content</a>
+
+	        <nav class="navbar-main navbar navbar-default navbar-inverse" role="navigation">
+    <div class="container">
+
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">FCMC Clerk</a>
+        </div>
+
+        <div class="collapse navbar-collapse" id="navbar-collapse-1">
+
+            <ul class="nav navbar-nav">
+                <li><a href="http://www.fcmcclerk.com/case/search">Search Records</a></li>
+            <!--<li><a href="/case/rs/search.php">Search Records</a></li>-->
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Clerk <span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="http://www.fcmcclerk.com/lori-m-tyack">Clerk Lori M. Tyack</a></li>
+                        <li class="divider"></li>
+                        <li role="presentation" class="dropdown-header">Departments</li>
+                        <li><a href="http://www.fcmcclerk.com/clerk/accounting-finance">Accounting/Finance</a></li>
+                        <li><a href="http://www.fcmcclerk.com/clerk/audit-and-internal-controls">Audit &amp; Internal Controls</a></li>
+                        <li><a href="http://www.fcmcclerk.com/clerk/civil">Civil</a></li>
+                        <li><a href="http://www.fcmcclerk.com/clerk/clerk-of-court">Clerk of Court</a></li>
+                        <li><a href="http://www.fcmcclerk.com/clerk/collections">Collections</a></li>
+                        <li><a href="http://www.fcmcclerk.com/clerk/criminal">Criminal</a></li>
+                        <li><a href="http://www.fcmcclerk.com/clerk/information-services">Information Services</a></li>
+                        <li><a href="http://www.fcmcclerk.com/clerk/traffic-violations">Traffic Violations</a></li>
+                        <li class="divider"></li>
+                        <li><a href="http://www.fcmcclerk.com/clerk/retention-and-public-records">Retention &amp; Public Records</a></li>
+                        <li class="divider"></li>
+                        <li><a href="http://www.fcmcclerk.com/clerk/employment">Employment</a></li>
+                        <li><a href="http://www.fcmcclerk.com/clerk/contact-information">Contact Us</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Court <span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="http://www.fcmcclerk.com/judges">Judges</a></li>
+                        <li><a href="http://www.fcmcclerk.com/magistrates">Magistrates</a></li>
+                        <li class="divider"></li>
+                        <li><a href="http://www.fcmcclerk.com/court/local-rules">Local Rules</a></li>
+                        <li class="divider"></li>
+                        <li role="presentation" class="dropdown-header">Departments</li>
+                        <li><a href="http://www.fcmcclerk.com/court/court-services">Court Services</a></li>
+                        <li><a href="http://www.fcmcclerk.com/court/duty-room">Duty Room</a></li>
+                        <li><a href="http://www.fcmcclerk.com/court/interpreting-services">Interpreting Services</a></li>
+                        <li><a href="http://jury.fcmcclerk.com">Jury</a></li>
+                        <li><a href="http://www.fcmcclerk.com/court/security">Security</a></li>
+                        <li><a href="http://www.fcmcclerk.com/court/service-bailiffs">Service Bailiffs</a></li>
+                        <li><a href="http://www.fcmcclerk.com/court/small-claims">Small Claims</a></li>
+                        
+                        <li><a href="http://www.fcmcclerk.com/court/vehicle-sanctions">Vehicle Sanctions</a></li>
+                        <li class="divider"></li>
+                        <li><a href="http://www.fcmcclerk.com/court/employment">Employment</a></li>
+                        <li><a href="http://www.fcmcclerk.com/court/contact-information">Contact</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Documents <span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li role="presentation" class="dropdown-header">Forms</li>
+                        <li><a href="http://www.fcmcclerk.com/forms/attorney">Attorney</a></li>
+                        <li><a href="http://www.fcmcclerk.com/forms/civil">Civil</a></li>
+                        <li><a href="http://www.fcmcclerk.com/forms/criminal-traffic">Criminal/Traffic</a></li>
+                        <li><a href="http://www.fcmcclerk.com/forms/mayors-court">Mayor&#039;s Court</a></li>
+                        <li><a href="http://www.fcmcclerk.com/forms/miscellaneous">Miscellaneous</a></li>
+                        <li><a href="http://www.fcmcclerk.com/forms/small-claims">Small Claims</a></li>
+                        <li class="divider"></li>
+                        <li role="presentation" class="dropdown-header">Reports</li>
+                        <li><a href="http://www.fcmcclerk.com/reports/annual-reports">Annual Reports</a></li>
+                        <li><a href="http://www.fcmcclerk.com/reports/daily-arraignment">Daily Arraignment</a></li>
+                        <li><a href="http://www.fcmcclerk.com/reports/4d-list">4D List</a></li>
+                        <li><a href="http://www.fcmcclerk.com/reports/evictions">Monthly Evictions</a></li>
+                        <li class="divider"></li>
+                        <li><a href="http://www.fcmcclerk.com/media-releases">Media Releases</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">More <span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li role="presentation" class="dropdown-header">Getting Around</li>
+                        <li><a href="http://www.fcmcclerk.com/directions">Directions</a></li>
+                        <li><a href="http://www.fcmcclerk.com/building-directory">Building Directory</a></li>
+                        <li><a href="http://www.fcmcclerk.com/office-hours">Holidays</a></li>
+                        <li><a href="http://www.fcmcclerk.com/office-hours">Hours of Operation</a></li>
+                        <li class="divider"></li>
+                        <li role="presentation" class="dropdown-header">Knowledge Base</li>
+                        <!--<li><a href="http://www.fcmcclerk.com/faq">Articles</a></li>-->
+                        <li><a href="http://www.fcmcclerk.com/faq">FAQ</a></li>
+                        <li><a href="http://www.fcmcclerk.com/history">History</a></li>
+                        <li><a href="http://www.fcmcclerk.com/links">Links to Associated Agencies</a></li>
+                        <li><a href="http://www.fcmcclerk.com/mission-statements">Mission Statements</a></li>
+                        <li><a href="http://www.fcmcclerk.com/privacy-statement">Privacy Statement</a></li>
+                        <li><a href="http://www.fcmcclerk.com/search-website">Search Website</a></li>
+                    </ul>
+                </li>
+            </ul>
+
+        </div>
+    </div>
+</nav>
+	
+        <section class="page-header-section page-header-image-search ">
+    <div class="container">
+        <header class="page-header pull-left">
+            <h1>
+                <span class="hidden-xxs">
+                    Search Records
+                </span>
+                <span class="visible-xxs">
+                    Search Records
+                </span>
+                                    <small>of the Franklin County Municipal Court</small>
+                            </h1>
+        </header>
+    </div>
+</section>
+
+    <div id="page-wrapper">
+        <div class="container" id="page">
+
+            
+            
+            
+            
+            
+<div class="row">
+    <div class="col-xs-12">
+
+
+        <form method="POST" action="http://www.fcmcclerk.com/case/search/results" accept-charset="UTF-8" id="searchForm"><input name="_token" type="hidden" value="zo2rojpkccaB9TwcLLbsHmfugZhwfvtmY5ItjFDQ">
+
+
+        <div class="row hidden-print">
+            <div class="col-xs-12">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+
+                            <button type="submit" class="btn btn-xs btn-primary btn-inline" id="search_button_1">
+                                <i class="fa fa-search"></i> Perform Search
+                            </button>
+
+                            <a href="http://www.fcmcclerk.com/case/search" class="btn btn-info btn-xs"><i class="fa fa-refresh fa-fw"></i>Clear Search</a>
+
+                            <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#helpModal">
+                                <i class="fa fa-question-circle"></i> Help
+                            </button>
+
+                    </div>
+                    <div class="panel-footer">
+                        <small>
+                            Not all fields are required.  To begin, search by name, or case number, or ticket number.  Add additional fields only if necessary.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="hidden-sm hidden-md hidden-lg hidden-print">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="panel panel-default">
+                        <div class="panel-body form-inline panel-form-inline">
+                            <div class="form-group input-group-sm form-results-type">
+                                <label for="desktop_view" class="control-label">Show results in desktop view:</label>
+                                <input class="form-control" name="desktop_view" type="checkbox" value="on" id="desktop_view">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row"><div class="col-sm-6">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+
+                        <!-- Last name Form Input -->
+                        <div class="form-group input-group-sm">
+                            <label for="last_name" class="control-label">Last name:</label>
+                            <input class="form-control" name="last_name" type="text" id="last_name">
+                        </div>
+
+                        <!-- First name Form Input -->
+                        <div class="form-group input-group-sm">
+                            <label for="first_name" class="control-label">First name:</label>
+                            <input class="form-control" name="first_name" type="text" id="first_name">
+                        </div>
+
+                        <!-- Middle name Form Input -->
+                        <div class="form-group input-group-sm">
+                            <label for="middle_name" class="control-label">Middle name:</label>
+                            <input class="form-control" name="middle_name" type="text" id="middle_name">
+                        </div>
+
+                        <!-- Date of birth Form Input -->
+                        <div class="form-group input-group-sm">
+                            <label for="date_of_birth" class="control-label">Date of birth: (MM/DD/YYYY)</label>
+                            <input class="form-control" placeholder="" name="date_of_birth" type="text" id="date_of_birth">
+                        </div>
+
+                        <!-- Company name Form Input -->
+                        <div class="form-group input-group-sm">
+                            <label for="company_name" class="control-label">Company name:</label>
+                            <input class="form-control" name="company_name" type="text" id="company_name">
+                        </div>
+
+                        <!-- Party type Form Input -->
+                        <div class="form-group input-group-sm">
+                            <label for="party_code" class="control-label">Party type:</label>
+                            <select class="form-control" id="party_code" name="party_code"><option value="" selected="selected">ALL</option><option value="ALIAS">ALIAS</option><option value="APPELLANT">APPELLANT</option><option value="APPELLEE">APPELLEE</option><option value="BOND DEPOSITOR">BOND DEPOSITOR</option><option value="CITY SOLICITOR">CITY SOLICITOR</option><option value="CREDITOR">CREDITOR</option><option value="DEBTOR">DEBTOR</option><option value="DEFENDANT">DEFENDANT</option><option value="DEPOSITOR FOR BOND">DEPOSITOR FOR BOND</option><option value="GARNISHEE">GARNISHEE</option><option value="LANDLORD">LANDLORD</option><option value="NON DEFENDANT VEH. OWNER">NON DEFENDANT VEH. OWNER</option><option value="OFFICER">OFFICER</option><option value="OFFICER COMPLAINANT">OFFICER COMPLAINANT</option><option value="OUT OF COUNTY CASE">OUT OF COUNTY CASE</option><option value="PARTY COMPLAINANT">PARTY COMPLAINANT</option><option value="PLAINTIFF">PLAINTIFF</option><option value="PROSECUTOR">PROSECUTOR</option><option value="TENANT">TENANT</option><option value="THIRD PARTY CLAIMANT">THIRD PARTY CLAIMANT</option><option value="THIRD PARTY DEFENDANT">THIRD PARTY DEFENDANT</option><option value="THIRD PARTY PLAINTIFF">THIRD PARTY PLAINTIFF</option></select>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+
+                            <!-- Case number Form Input -->
+                            <div class="form-group input-group-sm">
+                            	<label for="case_number" class="control-label">Case number:</label>
+                            	<input class="form-control" name="case_number" type="text" id="case_number">
+                            </div>
+
+                            <!-- Ticket number Form Input -->
+                            <div class="form-group input-group-sm">
+                            	<label for="ticket_number" class="control-label">Ticket number:</label>
+                            	<input class="form-control" name="ticket_number" type="text" id="ticket_number">
+                            </div>
+
+                            <!-- Case type Form Input -->
+                            <div class="form-group input-group-sm">
+                            	<label for="case_type" class="control-label">Case type:</label>
+                            	<select class="form-control" id="case_type" name="case_type"><option value="" selected="selected">ALL</option><option value="CIVIL">CIVIL</option><option value="CRIMINAL/TRAFFIC">CRIMINAL/TRAFFIC</option></select>
+                            </div>
+
+                            <!-- Case year Form Input -->
+                            <div class="form-group input-group-sm">
+                                <label for="case_year" class="control-label">Case year: (YYYY)</label>
+                                <input class="form-control" placeholder="YYYY" name="case_year" type="number" id="case_year">
+                            </div>
+
+                            <!-- Case status Form Input -->
+                            <div class="form-group input-group-sm">
+                                <label for="case_status" class="control-label">Case status:</label>
+                                <select class="form-control" id="case_status" name="case_status"><option value="" selected="selected">ALL</option><option value="(CIV)INDIV ASSIGN">(CIV)INDIV ASSIGN</option><option value="CLOSED">CLOSED</option><option value="CONVERSION STATUS CODE">CONVERSION STATUS CODE</option><option value="DIVERSION">DIVERSION</option><option value="DUPLICATED">DUPLICATED</option><option value="IND ASSIGNMENT">IND ASSIGNMENT</option><option value="JAIL">JAIL</option><option value="NONREPORTING LICENSE CONDITION">NONREPORTING LICENSE CONDITION</option><option value="NRPC">NRPC</option><option value="OIRH">OIRH</option><option value="OPEN">OPEN</option><option value="POST SENTENCE HEARING">POST SENTENCE HEARING</option><option value="PROVIDED NO CONVICTIONS">PROVIDED NO CONVICTIONS</option><option value="REOPEN (RO)">REOPEN (RO)</option><option value="SUBMITTED TO JUDGE">SUBMITTED TO JUDGE</option><option value="SUBMITTED TO MAGISTRATE">SUBMITTED TO MAGISTRATE</option></select>
+                            </div>
+
+                            
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12">
+                <!-- Form Submit Button -->
+                <div class="form-group">
+                    <button type="submit" class="btn btn-lg btn-primary btn-block" id="search_button_2">
+                        <i class="fa fa-search fa-lg "></i> Perform Search
+                    </button>
+                </div>
+            </div>
+        </div>
+
+                        </form>
+
+    </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="helpModal" tabindex="-1" role="dialog" aria-labelledby="helpModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="helpModalLabel">Help Information</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    Search Tips
+                </p>
+
+                <ul>
+                    <li>Not all fields are required.</li>
+                    <li>
+                        <strong>The required search criteria must include one of the following:</strong>
+                        <ul>
+                            <li>Case Number</li>
+                            <li>Ticket Number</li>
+                            <li>Last Name and First name</li>
+                            <li>Company Name</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Performance</strong>
+                        <ul>
+                            <li>The most efficient way to search for a case is by case number or ticket number.</li>
+                            <li>Without a case or ticket number, search by using first name and last name to find the case.</li>
+                            <li>If the minimal search above has too many results, try to provide as much information as possible to help retrieve results in a timely manner.</li>
+                            <li>Including Case Year, Case Type or Party Code are easy ways to narrow your results.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Name fields</strong>
+                        <ul>
+                            <li>You must always include a first and last name when performing a name search.</li>
+                            <li>If including a middle name, try only including the first letter of the middle name; middle name is not always present on a case.</li>
+                            <li>Company names may be entered in a variety of ways, try different variations to help find the information needed.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Case number</strong>
+                        <ul>
+                            <li>Case numbers include a year, a three letter case code, and a six digit sequence.</li>
+                            <li>
+                                Example criminal/traffic case numbers:
+                                <ul>
+                                    <li>2024 CR A 001234</li>
+                                    <li>2024 CR B 001234</li>
+                                    <li>2024 TR C 123456</li>
+                                    <li>2024 TR D 123456</li>
+                                    <li>2024 TR P 123456</li>
+                                    <li>Etc.</li>
+                                </ul>
+                            </li>
+                            <li>
+                                Example civil case numbers:
+                                <ul>
+                                    <li>2024 CVE 001234</li>
+                                    <li>2024 CVF 001234</li>
+                                    <li>2024 CVG 001234</li>
+                                    <li>Etc.</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Ticket number</strong>
+                        <ul>
+                            <li>Please include any letters included on the ticket number where applicable. For example: REY54321.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Date of birth</strong>
+                        <ul>
+                            <li>
+                                Submit date of birth search as MM/DD/YYYY
+                                <ul>
+                                    <li>Example: 01/18/2003</li>
+                                </ul>
+                            </li>
+                            <li>Do not use hypens/dashes - use a forward slash / to separate month/day/year.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Case status</strong>
+                        <ul>
+                            <li>Most cases fall into either open or closed.  Although a case status may be closed, it does not mean the case is completed or adjudicated.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+        </div>
+    </div>
+
+
+            <footer class="hidden-print footer-container">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="page-footer">
+                    <h3>
+                        <a href="/"><span class="no-wrap">Franklin County</span>
+                        <span class="no-wrap">Municipal Court</span></a>
+                        <span class="show-xs hidden-sm hidden-md hidden-lg"><br></span>
+                        <span class="no-wrap"><small>Clerk Lori M. Tyack</small></span>
+                    </h3>
+                </div>
+                                    <ul class="list-inline">
+                        <li><a href="http://www.fcmcclerk.com/case/search">Search Records</a></li>
+                        <li><a href="http://www.fcmcclerk.com/forms">View Forms</a></li>
+                        <li><a href="http://www.fcmcclerk.com/directions">Get Directions</a></li>
+                        <li><a href="http://www.fcmcclerk.com/clerk/contact-information">Contact the Clerk&#039;s Office</a></li>
+                        <li><a href="http://www.fcmcclerk.com/court/contact-information">Contact the Court</a></li>
+                    </ul>
+                
+                
+
+            </div>
+        </div>
+    </div>
+</footer>
+    
+    
+    <!-- Scripts -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="/js/jquery.min.js"><\/script>')</script>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script>
+        if(typeof($.fn.modal) === 'undefined') {
+            document.write('<script src="/js/bootstrap.min.js"><\/script>')
+        }
+    </script>
+
+    <!-- Site JS -->
+    <script>
+        $(document).ready(function() {
+            $('#flash-overlay-modal').modal();
+            $('.tip').tooltip();
+        } );
+    </script>
+
+    
+
+            <!-- Google Analytics -->
+        <script>
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+            ga('create', 'UA-1657041-1', 'auto');
+            ga('send', 'pageview');
+
+        </script>
+    
+</body>
+</html>

@@ -14,7 +14,6 @@
 #
 #
 #
-#
 ###
 
 # Importing all needed Selenium stuff
@@ -60,15 +59,8 @@ chrome_options = Options()
 # Set up for using with Chrome
 web_driver = webdriver.Chrome(service = Service(ChromeDriverManager().install()), options = chrome_options) 
 
-# Loop to grab all the info from the initial search page
-for i in range(RANGE_START,RANGE_END):
-    scrape_record(web_driver)
-    pt = PAUSE_TIME
-    if JITTER:
-        pt += random.randint(1,30)
-    time.sleep(pt)
 
-def scrape_record(driver):
+def scrape_record(driver,case_num):
 
     driver.get('http://www.fcmcclerk.com/case/search/')
 
@@ -76,7 +68,7 @@ def scrape_record(driver):
          element = WebDriverWait(driver, WEB_DRIVER_WAIT_TIME).until(EC.presence_of_element_located((By.NAME, 'case_number')))
     finally:
         driver.find_element('name','case_number').clear()
-        driver.find_element('name', 'case_number').send_keys(f'{CASE_YEAR} {CASE_CODE} {str(i).zfill(6)}' + Keys.ENTER)
+        driver.find_element('name', 'case_number').send_keys(f'{CASE_YEAR} {CASE_CODE} {str(case_num).zfill(6)}' + Keys.ENTER)
 
         try:
             button = WebDriverWait(driver, WEB_DRIVER_WAIT_TIME).until(
@@ -84,7 +76,7 @@ def scrape_record(driver):
         finally:
             possible_view_button = driver.find_element('class','btn btn-primary btn-xs')
             if possible_view_button.getAttribute('value') == 'View':
-                print (f'Located Case: {CASE_YEAR} {CASE_CODE} {str(i).zfill(6)}')
+                print (f'Located Case: {CASE_YEAR} {CASE_CODE} {str(case_num).zfill(6)}')
 
                     # Click view button and go to next page
                     possible_view_button.click()
@@ -92,7 +84,7 @@ def scrape_record(driver):
                     driver.switch_to.window(driver.window_handles[1])
 
                     # Check to make sure the case ID matches the page we're looking at
-                    if driver.find_element(By.CLASS_NAME, 'nav-bar-brand').text != f'{CASE_YEAR} {CASE_CODE} {str(i).zfill(6)}':
+                    if driver.find_element(By.CLASS_NAME, 'nav-bar-brand').text != f'{CASE_YEAR} {CASE_CODE} {str(case_num).zfill(6)}':
                         print (f'Something went wrong when looking at case {CASE_YEAR} {CASE_CODE} {str(i).zfill(6)}')
                         break
                     else:
@@ -104,10 +96,24 @@ def scrape_record(driver):
                             driver.switch_to.window(driver.window_handles[2])
                             source_code = driver.page_source
                             temp_case_record = {}   
-                            temp_case_record['case_number'] = f'{CASE_YEAR} {CASE_CODE} {str(i).zfill(6)}'
+                            temp_case_record['case_number'] = f'{CASE_YEAR} {CASE_CODE} {str(case_num).zfill(6)}'
                             temp_case_record['status'] = re.search(r'Status:\s(\w*)', source_code).group(1)
                             temp_case_record['file_date'] = re.search(r'Filed:\s\d\d/\d\d/\d\d\d\d', source_code).group(1)
                             temp_plaintiffs = re.findall(r'>(.*)</td>\s*<td\sclass="title">Type</td>\s*<td\sclass="data">PLAINTIFF</td>')
                             for p in temp_plaintiffs:
                                 temp_case_record
+
+def bulk_scrape(driver,start,end):
+
+    for cur_case_num in range(start,end):
+    
+        scrape_record(driver, cur_case_num)
+
+        pt = PAUSE_TIME
+        if JITTER:
+            pt += random.randint(1,30)
+        time.sleep(pt)
+
+
+
 driver.close()
