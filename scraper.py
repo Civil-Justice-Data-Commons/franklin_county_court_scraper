@@ -16,6 +16,10 @@
 #
 ###
 
+# Importing sys and os to do command prompt interaction etc
+import sys
+import os
+
 # Importing all needed Selenium stuff
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -39,27 +43,6 @@ import re
 import time
 import random
 
-# Constants
-CASE_YEAR = 1998 # Year to look at cases from
-CASE_CODE = 'CVI' # Case ID code to use, 'CVI' for civil
-RANGE_START = 3000 # Case num to start looking from (will be padded to 6 char)
-RANGE_END = 9000 # Case num to end looking at
-PAUSE_TIME = 60 # Used to space out requests, in sec
-JITTER = True # Introduces a time jitter to make scrapping seem more human
-WEB_DRIVER_WAIT_TIME = 10 # Used to tell selenium how long to wait while trying to find stuff
-
-
-# Set up dictonary to hold data
-case_records = {}
-chrome_options = Options()
-
-# Uncomment to let selenium run headless
-# chrome_options.add_argument('--headless')
-
-# Set up for using with Chrome
-web_driver = webdriver.Chrome(service = Service(ChromeDriverManager().install()), options = chrome_options) 
-
-
 def scrape_record(driver,case_num):
 
     driver.get('http://www.fcmcclerk.com/case/search/')
@@ -78,30 +61,30 @@ def scrape_record(driver,case_num):
             if possible_view_button.getAttribute('value') == 'View':
                 print (f'Located Case: {CASE_YEAR} {CASE_CODE} {str(case_num).zfill(6)}')
 
-                    # Click view button and go to next page
-                    possible_view_button.click()
-                    wait.until(EC.number_of_windows_to_be(2))
-                    driver.switch_to.window(driver.window_handles[1])
+                # Click view button and go to next page
+                possible_view_button.click()
+                wait.until(EC.number_of_windows_to_be(2))
+                driver.switch_to.window(driver.window_handles[1])
 
-                    # Check to make sure the case ID matches the page we're looking at
-                    if driver.find_element(By.CLASS_NAME, 'nav-bar-brand').text != f'{CASE_YEAR} {CASE_CODE} {str(case_num).zfill(6)}':
-                        print (f'Something went wrong when looking at case {CASE_YEAR} {CASE_CODE} {str(i).zfill(6)}')
-                        break
-                    else:
-                        possible_print_button = driver.find_element('class', 'btn btn-success btn-xs btn-block')
-                        if possible_print_button.text == 'Print':
-                            print (f'"Printing" info...')
-                            possible_print_button.click()
-                            wait.until(EC.number_of_windows_to_be(3))
-                            driver.switch_to.window(driver.window_handles[2])
-                            source_code = driver.page_source
-                            temp_case_record = {}   
-                            temp_case_record['case_number'] = f'{CASE_YEAR} {CASE_CODE} {str(case_num).zfill(6)}'
-                            temp_case_record['status'] = re.search(r'Status:\s(\w*)', source_code).group(1)
-                            temp_case_record['file_date'] = re.search(r'Filed:\s\d\d/\d\d/\d\d\d\d', source_code).group(1)
-                            temp_plaintiffs = re.findall(r'>(.*)</td>\s*<td\sclass="title">Type</td>\s*<td\sclass="data">PLAINTIFF</td>')
-                            for p in temp_plaintiffs:
-                                temp_case_record
+                # Check to make sure the case ID matches the page we're looking at
+                if driver.find_element(By.CLASS_NAME, 'nav-bar-brand').text != f'{CASE_YEAR} {CASE_CODE} {str(case_num).zfill(6)}':
+                    print (f'Something went wrong when looking at case {CASE_YEAR} {CASE_CODE} {str(i).zfill(6)}')
+                    break
+                else:
+                    possible_print_button = driver.find_element('class', 'btn btn-success btn-xs btn-block')
+                    if possible_print_button.text == 'Print':
+                        print (f'"Printing" info...')
+                        possible_print_button.click()
+                        wait.until(EC.number_of_windows_to_be(3))
+                        driver.switch_to.window(driver.window_handles[2])
+                        source_code = driver.page_source
+                        temp_case_record = {}   
+                        temp_case_record['case_number'] = f'{CASE_YEAR} {CASE_CODE} {str(case_num).zfill(6)}'
+                        temp_case_record['status'] = re.search(r'Status:\s(\w*)', source_code).group(1)
+                        temp_case_record['file_date'] = re.search(r'Filed:\s\d\d/\d\d/\d\d\d\d', source_code).group(1)
+                        temp_plaintiffs = re.findall(r'>(.*)</td>\s*<td\sclass="title">Type</td>\s*<td\sclass="data">PLAINTIFF</td>')
+                        for p in temp_plaintiffs:
+                            temp_case_record
 
 def bulk_scrape(driver,start,end):
 
@@ -114,6 +97,28 @@ def bulk_scrape(driver,start,end):
             pt += random.randint(1,30)
         time.sleep(pt)
 
+if __name__ == '__main__':
 
+    # Load in defaults:
+    default_data = json.load(open('defaults.json','r'))
+    case_year = default_data['case_year'] # Year to look at cases from
+    case_code = default_data['case_code'] # Case ID code to use, 'CVI' for civil
+    range_start = default_data['range_start'] # Case num to start looking from (will be padded to 6 char)
+    range_end = default_data['range_end'] # Case num to end looking at
+    pause_time = default_data['pause_time'] # Used to space out requests, in sec
+    jitter = default_data['jitter'] # Introduces a time jitter to make scrapping seem more human
+    web_driver_wait_time = default_data['web_driver_wait_time'] # Used to tell selenium how long to wait while trying to find stuff
+    
+    # Set up dictonary to hold data
+    case_records = {}
+    chrome_options = Options()
 
-driver.close()
+    # Uncomment to let selenium run headless
+    # chrome_options.add_argument('--headless')
+
+    # Set up for using with Chrome
+    web_driver = webdriver.Chrome(service = Service(ChromeDriverManager().install()), options = chrome_options) 
+
+    # Bulk Scrape
+
+    driver.close()
