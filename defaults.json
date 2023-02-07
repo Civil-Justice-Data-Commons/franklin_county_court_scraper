@@ -5,5 +5,7 @@
 	"range_end" : 9000,
 	"pause_time" : 60,
 	"jitter" : true,
-	"web_driver_wait_time" : 10
+	"web_driver_wait_time" : 10,
+	"headless" : false,
+	"results_dir" : "./results"
 }
