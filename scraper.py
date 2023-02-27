@@ -28,9 +28,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from webdriver_manager.chrome import ChromeDriverManager
+# Import Beautiful Soup for parsing the HTML
+from bs4 import BeautifulSoup
 # Import csv and json for writing to file
-import pandas as pd
-import numpy as np
 import csv
 import json
 # Import regular expressions for searching final page
@@ -76,15 +76,113 @@ def scrape_record(driver, year, code, case_num, wait_time):
                         wait.until(EC.number_of_windows_to_be(3))
                         driver.switch_to.window(driver.window_handles[2])
                         source_code = driver.page_source
-                        temp_case_record = {}   
-                        temp_case_record['case_number'] = f'{year} {code} {str(case_num).zfill(6)}'
-                        temp_case_record['status'] = re.search(r'Status:\s(\w*)', source_code).group(1)
-                        temp_case_record['file_date'] = re.search(r'Filed:\s\d\d/\d\d/\d\d\d\d', source_code).group(1)
-                        # This very long regex is fairly specific to the current html and grabs the name, address, city, state, and zip of the plaintiff
-                        temp_plaintiffs = re.findall(r'>(?P<name>.*)</td>\s*<td\sclass="title">Type</td>\s*<td\sclass="data">PLAINTIFF</td>\s*.*\s*<td\sclass="title">Address</td>\s*<td\sclass="data"\scolspan="\d">(?P<address>.*)</td>\s*</tr><tr\svalign="top">\s*.*\s*<td\sclass="data">(?P<city>.*)</td>\s*.*\s*<td\sclass="data">(?P<state>[a-zA-Z]*)/(?P<zip>\d*)</td>')
-                        temp_case_record['plaintiffs'] = {}
-                        for p in temp_plaintiffs:
-                            temp_case_record['plaintiffs'].append()
+
+                        # Define the case ID, which we will return later and will ID the case in a batch scrape
+                        case_ID = f'{year} {code} {str(case_num.zfill(6))}'
+
+                        # Set up the temp case record, to store all the info we're scraping
+                        temp_case_record = {}
+                        temp_case_record['parties'] = {}
+                        temp_case_record['parties']['plaintiffs'] = {}
+                        temp_case_record['parties']['defendants'] = {}
+                        temp_case_record['attorneys'] = {}
+                        temp_case_record['dispositions'] = {}
+                        # Financial info not collected in this version of the scraper
+                        # temp_case_record['financial_summary'] = {}
+                        # temp_case_record['receipts'] = {}
+                        temp_case_record['docket'] = {}
+                        temp_case_record['status'] = re.search(r'Status:\s(?P<status>\w*)', source_code).group('status')
+                        temp_case_record['file_date'] = re.search(r'Filed:\s(?P<file_date>\d\d/\d\d/\d\d\d\d)', source_code).group('file_date')
+                        
+                        # Make some soup
+                        soup = BeautifulSoup(source_code, 'html.parser')
+
+                        # Soup for Parties
+                        temp_parties_snip = soup.find_all('div', title='PARTIES')
+                        temp_parties = temp_parties_snip[0].find_all('td', string = 'Name')
+
+                        # This slightly confusing loop goes through the nodes that make up a party and sort them into either platiff or defendant, then store that info
+                        for tp in temp_parties:
+                            tp_name = tp.find_next()
+                            tp_party_type_raw = tp_name.find_next('td','data')
+
+                            # Work out if it's a plaintiff or defendant, if we aren't sure, skip
+                            if tp_party_type_raw == 'PLAINTIFF': tp_party_type = 'plaintiffs'
+                            elif tp_party_type_raw == 'DEFENDANT': tp_party_type = 'defendants'
+                            else: break
+
+                            # Grab the address info
+                            tp_address = tp.find_next('tr').find_next('td','data')
+                            tp_city = tp_address.find_next('tr').find_next('td','data')
+
+                            # Some regex to mangle the state/zip string into seperate fields
+                            tp_state_zip_raw = tp_city.find_next('td','data')
+                            tp_state_zip_search = re.search(r'(?P<state>\D*)/(?P<zip>\d*)', tp_state_zip_raw)
+                            tp_state = tp_state_zip_search.group('state')
+                            tp_zip = tp_state_zip_search.group('zip')
+
+                            # Store all that party data and address info in the right place in the case record
+                            temp_case_record['parties'][tp_party_type][tp_name] = {'address':tp_address, 'city':tp_city, 'state':tp_state, 'zip':tp_zip}
+
+                        # Soup for Attorneys
+                        temp_attorneys_snip = soup.find_all('div', title='ATTORNEYS')
+                        ########
+                        # NB: The current (Feb 2023) HTML uses 'Name:' WITH A COLON for the Attorneys name field, but 'Name' without one for the Parties name field
+                        ########
+                        temp_attorneys = temp_attorneys_snip[0].find_all('td', string = 'Name:')
+
+                        # Similiar Loop for Attorneys to what we had for Parties
+                        for ta in temp_attorneys:
+                            ta_name = ta.find_next()
+                            ta_party = ta_name.find_next('td','data')
+                            # A little fiddling with the address if it has multiple lines, as they often seem to be for attorneys here
+                            ta_address_raw = ta.find_next('tr').find_next('td','data')
+                            ta_address = ta_address_raw.string.replace(r'<br />', r'\n')
+                            ta_city_state_zip_raw = ta_address_raw.find_next('td','data')
+                            ta_city_state_zip_search = re.search(r'(?P<city>\D*),\s(?P<state>\D*)\s(?P<zip>\d*)')
+                            ta_city = ta_city_state_zip_search.group('city')
+                            ta_state = ta_city_state_zip_search.group('state')
+                            ta_zip = ta_city_state_zip_search.group('zip')
+                            # Store all that attorney data in the case record
+                            temp_case_record['attorneys'][ta_party] = {'name':ta_name, 'address':ta_address, 'city':ta_city, 'state':ta_state, 'zip':ta_zip}
+
+                        # Soup for dispositions
+                        temp_dispositions_snip = soup.find_all('div', title='CASE DISPOSITION')
+                        # Pop off the first header row, as it is a title row
+                        temp_dispositions = temp_dispositions_snip[0].find_all('tr')[1:]
+
+                        for td in temp_dispositions:
+                            td_status = td.find_next('td','data')
+                            td_status_date = td_status.find_next('td','data')
+                            td_dis_code = td_status_date.find_next('td','data')
+                            td_dis_date = td_dis_code.find_next('td','data')
+                            temp_case_record['dispositions'][td_dis_code] = {'status':td_status, 'status_date':td_status_date, 'disposition_date':td_dis_date}
+
+                        # We skip over doing soup for Finanical Summary or Receipts, as we are not super concerned about court finances at this time.
+                        # Might want to consider adding before doing a large scrape
+
+                        # Soup for dockets
+                        temp_docket_snip = soup.find_all('div', title='DOCKET')
+                        temp_docket = temp_docket_snip[0]
+                        # Like the dispositions, pop off the header row
+                        # Turn the snip to rows
+                        temp_docket_rows = temp_docket.find_all('tr')[1:]
+
+                        # For dockets, we are only going to care about info from events which have a date. 
+                        # These events usually are formated to have the date in the first column, title in second, fees in the last two columns, and further info in the row below
+                        cur_date = 'UNDATED'
+                        for row in temp_docket_rows:
+                            cells = row.find_all('td')
+                            if cells[0].text != '':
+                                cur_date = cells[0].text
+                                temp_case_record['docket'][cur_date]['event'] = cells[1].text
+                                temp_case_record['docket'][cur_date]['amount'] = cells[2].text
+                                temp_case_record['docket'][cur_date]['balance'] = cells[3].text
+                            else:
+                                temp_case_record['docket'][cur_date]['details'] = cells[1].text
+
+                            
+
 
 def bulk_scrape(driver, year, code, start, end, pause, jitter=False, wait_time):
 
@@ -195,7 +293,7 @@ if __name__ == '__main__':
     # Set up for using with Chrome
     web_driver = webdriver.Chrome(service = Service(ChromeDriverManager().install()), options = chrome_options) 
 
-    # Bulk Scrape
+    # Bulk Scrape, to get a big dictonary of all the results
     results = bulk_scrape(web_driver, case_year, case_code, range_start, range_end, pause_time, jitter, web_driver_wait_time)
 
     # Close the driver
