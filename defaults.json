@@ -3,7 +3,7 @@
 	"case_code" : "CVI",
 	"range_start" : 3000,
 	"range_end" : 9000,
-	"pause_time" : 60,
+	"pause_time" : 2,
 	"jitter" : true,
 	"web_driver_wait_time" : 10,
 	"headless" : false,

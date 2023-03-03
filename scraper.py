@@ -1,7 +1,7 @@
 ###
 # Franklin County Court Database Scraper Prototype
-# v0.1
-# Feb 2023
+# v0.9
+# March 2023
 #
 # By James Carey for the Georgetown Civil Justice Data Commons
 # For use to scrape the Franklin Co. Court Records website (with their permission)
@@ -10,7 +10,7 @@
 #
 #
 #
-# Currently a work in progress, with the timing of scrapes and the output needing to be firmed up.
+# Currently a work in progress, with the timing of scrapes and the output needing to be firmed up to avoid IP blocks.
 #
 #
 ###
@@ -50,28 +50,26 @@ def scrape_record(driver, year, code, case_num, wait_time):
 
     try:
         element = WebDriverWait(driver, wait_time).until(EC.presence_of_element_located((By.NAME, 'case_number')))
-    finally:
         driver.find_element('name','case_number').clear()
         driver.find_element('name', 'case_number').send_keys(f'{year} {code} {str(case_num).zfill(6)}' + Keys.ENTER)
 
         try:
             button = WebDriverWait(driver, wait_time).until(EC.presence_of_element_located((By.XPATH, '//input[@value="View"]')))
-        finally:
             possible_view_button = driver.find_element(By.XPATH, '//input[@value="View"]')
-            if possible_view_button.get_attribute('value') == 'View':
-                print (f'Located Case: {year} {code} {str(case_num).zfill(6)}')
+            print (f'Located Case: {year} {code} {str(case_num).zfill(6)}')
 
-                # Click view button and go to next page
-                possible_view_button.click()
-                WebDriverWait(driver, wait_time).until(EC.number_of_windows_to_be(2))
-                driver.switch_to.window(driver.window_handles[1])
+            # Click view button and go to next page
+            possible_view_button.click()
+            WebDriverWait(driver, wait_time).until(EC.number_of_windows_to_be(2))
+            driver.switch_to.window(driver.window_handles[1])
 
-                # Check to make sure the case ID matches the page we're looking at
-                if driver.find_element(By.CLASS_NAME, 'hidden-xxs').text != f'{year} {code} {str(case_num).zfill(6)}':
-                    print (f'Something went wrong when looking at case {year} {code} {str(i).zfill(6)}')
-                    return
-                else:
-                    possible_print_button = driver.find_element(By.XPATH, '//button[contains(text(), " Print")]')
+            # Check to make sure the case ID matches the page we're looking at
+            if driver.find_element(By.CLASS_NAME, 'hidden-xxs').text != f'{year} {code} {str(case_num).zfill(6)}':
+                print (f'Something went wrong when looking at case {year} {code} {str(i).zfill(6)}')
+                return None
+            else:
+                try:
+                    possible_print_button = driver.find_element(By.XPATH, '//button[contains(text(), "Print")]')
                     print (f'"Printing" info...')
                     possible_print_button.click()
                     WebDriverWait(driver, wait_time).until(EC.number_of_windows_to_be(3))
@@ -98,94 +96,119 @@ def scrape_record(driver, year, code, case_num, wait_time):
                     # Make some soup
                     soup = BeautifulSoup(source_code, 'html.parser')
 
-                    # Soup for Parties
-                    temp_parties_snip = soup.find_all('div', title='PARTIES')
-                    temp_parties = temp_parties_snip[0].find_all('td', string = 'Name')
+                    try:
+                        # Soup for Parties
+                        temp_parties_snip = soup.find_all('div', title='PARTIES')
+                        temp_parties = temp_parties_snip[0].find_all('td', string = 'Name')
 
-                    # This slightly confusing loop goes through the nodes that make up a party and sort them into either platiff or defendant, then store that info
-                    for tp in tqdm(temp_parties, desc='Parties', colour='blue'):
-                        tp_name = tp.find_next()
-                        tp_party_type_raw = tp_name.find_next('td','data')
+                        # This slightly confusing loop goes through the nodes that make up a party and sort them into either plaintiff or defendant, then store that info
+                        for tp in tqdm(temp_parties, desc='Parties', colour='blue'):
+                            tp_name = tp.find_next()
+                            tp_party_type_raw = tp_name.find_next('td','data')
 
-                        # Work out if it's a plaintiff or defendant, if we aren't sure, skip
-                        if tp_party_type_raw == 'PLAINTIFF': tp_party_type = 'plaintiffs'
-                        elif tp_party_type_raw == 'DEFENDANT': tp_party_type = 'defendants'
-                        else: continue
+                            # Work out if it's a plaintiff or defendant, if we aren't sure, skip
+                            if tp_party_type_raw == 'PLAINTIFF': tp_party_type = 'plaintiffs'
+                            elif tp_party_type_raw == 'DEFENDANT': tp_party_type = 'defendants'
+                            else: continue
 
-                        # Grab the address info
-                        tp_address = tp.find_next('tr').find_next('td','data')
-                        tp_city = tp_address.find_next('tr').find_next('td','data')
+                            # Grab the address info
+                            tp_address = tp.find_next('tr').find_next('td','data')
+                            tp_city = tp_address.find_next('tr').find_next('td','data')
 
-                        # Some regex to mangle the state/zip string into seperate fields
-                        tp_state_zip_raw = tp_city.find_next('td','data')
-                        tp_state_zip_search = re.search(r'(?P<state>\D*)/(?P<zip>\d*)', tp_state_zip_raw)
-                        tp_state = tp_state_zip_search.group('state')
-                        tp_zip = tp_state_zip_search.group('zip')
+                            # Some regex to mangle the state/zip string into separate fields
+                            tp_state_zip_raw = tp_city.find_next('td','data')
+                            tp_state_zip_search = re.search(r'(?P<state>\D*)/(?P<zip>\d*)', tp_state_zip_raw)
+                            tp_state = tp_state_zip_search.group('state')
+                            tp_zip = tp_state_zip_search.group('zip')
 
-                        # Store all that party data and address info in the right place in the case record
-                        temp_case_record['parties'][tp_party_type][tp_name] = {'address':tp_address, 'city':tp_city, 'state':tp_state, 'zip':tp_zip}
+                            # Store all that party data and address info in the right place in the case record
+                            temp_case_record['parties'][tp_party_type][tp_name] = {'address':tp_address, 'city':tp_city, 'state':tp_state, 'zip':tp_zip}
+                    except:
+                        print('Oops! No Parties!')
 
-                    # Soup for Attorneys
-                    temp_attorneys_snip = soup.find_all('div', title='ATTORNEYS')
-                    ########
-                    # NB: The current (Feb 2023) HTML uses 'Name:' WITH A COLON for the Attorneys name field, but 'Name' without one for the Parties name field
-                    ########
-                    temp_attorneys = temp_attorneys_snip[0].find_all('td', string = 'Name:')
+                    try:
+                        # Soup for Attorneys
+                        temp_attorneys_snip = soup.find_all('div', title='ATTORNEYS')
+                        ########
+                        # NB: The current (Feb 2023) HTML uses 'Name:' WITH A COLON for the Attorneys name field, but 'Name' without one for the Parties name field
+                        ########
+                        temp_attorneys = temp_attorneys_snip[0].find_all('td', string = 'Name:')
 
-                    # Similiar Loop for Attorneys to what we had for Parties
-                    for ta in tqdm(temp_attorneys, desc='Attorneys', colour='blue'):
-                        ta_name = ta.find_next()
-                        ta_party = ta_name.find_next('td','data')
-                        # A little fiddling with the address if it has multiple lines, as they often seem to be for attorneys here
-                        ta_address_raw = ta.find_next('tr').find_next('td','data')
-                        if ta_address_raw.string is None: continue
-                        ta_address = ta_address_raw.string.replace(r'<br />', r'\n')
-                        ta_city_state_zip_raw = ta_address_raw.find_next('td','data')
-                        ta_city_state_zip_search = re.search(r'(?P<city>\D*),\s(?P<state>\D*)\s(?P<zip>\d*)')
-                        ta_city = ta_city_state_zip_search.group('city')
-                        ta_state = ta_city_state_zip_search.group('state')
-                        ta_zip = ta_city_state_zip_search.group('zip')
-                        # Store all that attorney data in the case record
-                        temp_case_record['attorneys'][ta_party] = {'name':ta_name, 'address':ta_address, 'city':ta_city, 'state':ta_state, 'zip':ta_zip}
+                        # Similar Loop for Attorneys to what we had for Parties
+                        for ta in tqdm(temp_attorneys, desc='Attorneys', colour='blue'):
+                            ta_name = ta.find_next()
+                            ta_party = ta_name.find_next('td','data')
+                            # A little fiddling with the address if it has multiple lines, as they often seem to be for attorneys here
+                            ta_address_raw = ta.find_next('tr').find_next('td','data')
+                            if ta_address_raw.string is None: continue
+                            ta_address = ta_address_raw.string.replace(r'<br />', r'\n')
+                            ta_city_state_zip_raw = ta_address_raw.find_next('td','data')
+                            ta_city_state_zip_search = re.search(r'(?P<city>\D*),\s(?P<state>\D*)\s(?P<zip>\d*)')
+                            ta_city = ta_city_state_zip_search.group('city')
+                            ta_state = ta_city_state_zip_search.group('state')
+                            ta_zip = ta_city_state_zip_search.group('zip')
+                            # Store all that attorney data in the case record
+                            temp_case_record['attorneys'][ta_party] = {'name':ta_name, 'address':ta_address, 'city':ta_city, 'state':ta_state, 'zip':ta_zip}
+                    except:
+                        print('Oops! No Attorneys!')
 
-                    # Soup for dispositions
-                    temp_dispositions_snip = soup.find_all('div', title='CASE DISPOSITION')
-                    # Pop off the first header row, as it is a title row
-                    temp_dispositions = temp_dispositions_snip[0].find_all('tr')[1:]
+                    try:
+                        # Soup for dispositions
+                        temp_dispositions_snip = soup.find_all('div', title='CASE DISPOSITION')
+                        # Pop off the first header row, as it is a title row
+                        temp_dispositions = temp_dispositions_snip[0].find_all('tr')[1:]
 
-                    for td in tqdm(temp_dispositions, desc='Dispositions', colour='blue'):
-                        td_status = td.find_next('td','data')
-                        td_status_date = td_status.find_next('td','data')
-                        td_dis_code = td_status_date.find_next('td','data')
-                        td_dis_date = td_dis_code.find_next('td','data')
-                        temp_case_record['dispositions'][td_dis_code] = {'status':td_status, 'status_date':td_status_date, 'disposition_date':td_dis_date}
+                        for td in tqdm(temp_dispositions, desc='Dispositions', colour='blue'):
+                            td_status = td.find_next('td','data')
+                            td_status_date = td_status.find_next('td','data')
+                            td_dis_code = td_status_date.find_next('td','data')
+                            td_dis_date = td_dis_code.find_next('td','data')
+                            temp_case_record['dispositions'][td_dis_code.text] = {'status':td_status.text, 'status_date':td_status_date.text, 'disposition_date':td_dis_date.text}
+                    except:
+                        print('Oops! No dispositions!')
 
-                    # We skip over doing soup for Finanical Summary or Receipts, as we are not super concerned about court finances at this time.
+                    # We skip over doing soup for Financial Summary or Receipts, as we are not super concerned about court finances at this time.
                     # Might want to consider adding before doing a large scrape
 
-                    # Soup for dockets
-                    temp_docket_snip = soup.find_all('div', title='DOCKET')
-                    temp_docket = temp_docket_snip[0]
-                    # Like the dispositions, pop off the header row
-                    # Turn the snip to rows
-                    temp_docket_rows = temp_docket.find_all('tr')[1:]
+                    try:
+                        # Soup for dockets
+                        temp_docket_snip = soup.find_all('div', title='DOCKET')
+                        temp_docket = temp_docket_snip[0]
+                        # Like the dispositions, pop off the header row
+                        # Turn the snip to rows
+                        temp_docket_rows = temp_docket.find_all('tr')[1:]
 
-                    # For dockets, we are only going to care about info from events which have a date. 
-                    # These events usually are formated to have the date in the first column, title in second, fees in the last two columns, and further info in the row below
-                    cur_date = 'UNDATED'
-                    for row in tqdm(temp_docket_rows, desc='Docket', colour='blue'):
-                        cells = row.find_all('td')
-                        if len(cells) == 4:
-                            cur_date = cells[0].text
-                            temp_case_record['docket'].setdefault(cur_date, {})
-                            temp_case_record['docket'][cur_date]['event'] = fix_blanks(cells[1].text)
-                            temp_case_record['docket'][cur_date]['amount'] = fix_blanks(cells[2].text)
-                            temp_case_record['docket'][cur_date]['balance'] = fix_blanks(cells[3].text)
-                        else:
-                            temp_case_record['docket'][cur_date]['details'] = fix_blanks(cells[0].text)
+                        # For dockets, we are only going to care about info from events which have a date. 
+                        # These events usually are formatted to have the date in the first column, title in second, fees in the last two columns, and further info in the row below
+                        cur_date = 'UNDATED'
+                        for row in tqdm(temp_docket_rows, desc='Docket', colour='blue'):
+                            cells = row.find_all('td')
+                            if len(cells) == 4:
+                                cur_date = cells[0].text
+                                temp_case_record['docket'].setdefault(cur_date, {})
+                                temp_case_record['docket'][cur_date]['event'] = fix_blanks(cells[1].text)
+                                temp_case_record['docket'][cur_date]['amount'] = fix_blanks(cells[2].text)
+                                temp_case_record['docket'][cur_date]['balance'] = fix_blanks(cells[3].text)
+                            else:
+                                temp_case_record['docket'][cur_date]['details'] = fix_blanks(cells[1].text)
+                    except:
+                        print('Oops! No dockets!')
 
                     # Now we have to return all that info for storage
+                    clean_tabs(driver)
                     return temp_case_record
+                except:
+                    print('\nSomething went wrong while "printing".')
+                    clean_tabs(driver)
+                    return None
+        except:
+            print('\nDid not get case in search results.')
+            clean_tabs(driver)
+            return None
+    except:
+        print('\nCould not search.')
+        clean_tabs(driver)
+        return None
 
 # Quick helper for blank cells in the Docket section                           
 def fix_blanks(text):
@@ -194,18 +217,35 @@ def fix_blanks(text):
     else:
         return text
 
+# Quick helper for closing extra browser tabs
+def clean_tabs(driver):
+    main_tab = driver.window_handles[0]
+    for handle in driver.window_handles[1:]:
+        try:
+            driver.switch_to.window(handle)
+            driver.close()
+        except:
+            pass
+    driver.switch_to.window(main_tab)
+
 def bulk_scrape(driver, year, code, start, end, pause, wait_time, jitter=False):
 
     results = {}
 
-    for cur_case_num in tqdm(range(start,end), desc='Bulk Scraping Cases...', colour='yellow'):
+    for cur_case_num in tqdm(range(start,end), desc='Bulk Scraping Cases...', colour='green'):
     
-        results[cur_case_num] = scrape_record(driver, year, code, cur_case_num, wait_time)
+        returned_results = scrape_record(driver, year, code, cur_case_num, wait_time)
+
+        if returned_results != None:
+            results[cur_case_num] = returned_results
 
         pt = pause_time
         if jitter:
-            pt += random.randint(1,30)
+            pt += random.uniform(0.25,5.00)
+        print(f'Sleeping for {pt} seconds in between cases...')
         time.sleep(pt)
+
+    return results
 
 # Called to scrape a single record without setting up any init factors etc. Mostly used for testing.
 def single_scrape(case_year=1998, case_code='CVI', case_num=3001, web_driver_wait_time=10, headless=False):
@@ -219,19 +259,23 @@ def single_scrape(case_year=1998, case_code='CVI', case_num=3001, web_driver_wai
     # Run the single scrape
     results = scrape_record(web_driver, case_year, case_code, case_num, web_driver_wait_time)
 
-    # Pretty Print those results
-    pp = pprint.PrettyPrinter(indent=4)
-    pp.pprint(results)
+    if results != None:
+        # Pretty Print those results
+        pp = pprint.PrettyPrinter(indent=4)
+        pp.pprint(results)
 
     return results
 
 
 if __name__ == '__main__':
 
-    # Set up dictonary to hold data
+    # Set up dictionary to hold data
     case_records = {}
     
     chrome_options = Options()
+
+
+    cur_dir = os.path.dirname(__file__)
 
     # Handle arguments if we don't want to use the defaults
     parser = argparse.ArgumentParser()
@@ -248,10 +292,12 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # If there is an argument supplied for an option, use that, otherwise use defaults from file
-    if args.default_data is not None: 
-        default_data = json.load(args.default_data,'r')
+    if args.data_file is not None:
+        with open(args.data_file, 'r') as d_file: 
+            default_data = json.load(d_file)
     else:
-        default_data = json.load('defaults.json','r')
+        with open('defaults.json', 'r') as d_file: 
+            default_data = json.load(d_file)
     # Year to look at cases from
     if args.case_year is not None:
         case_year = args.case_year
@@ -303,8 +349,18 @@ if __name__ == '__main__':
     # Set up for using with Chrome
     web_driver = webdriver.Chrome(service = Service(ChromeDriverManager().install()), options = chrome_options) 
 
-    # Bulk Scrape, to get a big dictonary of all the results
+    # Bulk Scrape, to get a big dictionary of all the results
     results = bulk_scrape(web_driver, case_year, case_code, range_start, range_end, pause_time, jitter, web_driver_wait_time)
 
-    # Close the driver
-    driver.close()
+    # Put those results in a file
+    results_json = json.dumps(results)
+    results_path = f'results/{case_year}_{case_code}_{str(range_start).zfill(6)}-{str(range_end).zfill(6)}.json'
+    full_file_path = os.path.join(cur_dir, results_path)
+    with open(full_file_path, 'w') as write_file:
+        write_file.write(results_json)
+
+    # Print a happy success message
+    print(f'Wrote the available cases from case number {case_year} {case_code} {str(range_start).zfill(6)} to {case_year} {case_code} {str(range_end).zfill(6)}')
+
+    # Quit the driver
+    web_driver.quit()
