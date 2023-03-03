@@ -43,7 +43,6 @@ import pprint
 # tqdm to make progress bars look nice
 from tqdm import tqdm
 
-
 def scrape_record(driver, year, code, case_num, wait_time):
 
     driver.get('http://www.fcmcclerk.com/case/search/')
@@ -228,7 +227,7 @@ def clean_tabs(driver):
             pass
     driver.switch_to.window(main_tab)
 
-def bulk_scrape(driver, year, code, start, end, pause, wait_time, jitter=False):
+def bulk_scrape(driver, year, code, start, end, pause, jitter, jitter_time, wait_time,):
 
     results = {}
 
@@ -237,11 +236,11 @@ def bulk_scrape(driver, year, code, start, end, pause, wait_time, jitter=False):
         returned_results = scrape_record(driver, year, code, cur_case_num, wait_time)
 
         if returned_results != None:
-            results[cur_case_num] = returned_results
+            results[f'{year} {code} {str(cur_case_num).zfill(6)}'] = returned_results
 
         pt = pause_time
         if jitter:
-            pt += random.uniform(0.25,5.00)
+            pt += random.uniform(0.25,jitter_time)
         print(f'Sleeping for {pt} seconds in between cases...')
         time.sleep(pt)
 
@@ -266,7 +265,6 @@ def single_scrape(case_year=1998, case_code='CVI', case_num=3001, web_driver_wai
 
     return results
 
-
 if __name__ == '__main__':
 
     # Set up dictionary to hold data
@@ -286,6 +284,7 @@ if __name__ == '__main__':
     parser.add_argument('--range_end', type=int, required=False)
     parser.add_argument('--pause_time', type=int, required=False)
     parser.add_argument('--jitter', type=bool, required=False)
+    parser.add_argument('--jitter_time', type=float, required=False)
     parser.add_argument('--web_driver_wait_time', type=int, required=False)
     parser.add_argument('--headless', type=bool, required=False)
     parser.add_argument('--results_dir', type=str, required=False)
@@ -328,6 +327,11 @@ if __name__ == '__main__':
         jitter = args.jitter
     else:
         jitter = default_data['jitter']
+    # Sets how many max seconds for the jitter.
+    if args.jitter_time is not None:
+        jitter_time = args.jitter_time
+    else:
+        jitter_time = default_data['jitter_time']
     # Used to tell selenium how long to wait while trying to find stuff
     if args.web_driver_wait_time is not None:
         web_driver_wait_time = args.web_driver_wait_time
@@ -350,7 +354,7 @@ if __name__ == '__main__':
     web_driver = webdriver.Chrome(service = Service(ChromeDriverManager().install()), options = chrome_options) 
 
     # Bulk Scrape, to get a big dictionary of all the results
-    results = bulk_scrape(web_driver, case_year, case_code, range_start, range_end, pause_time, jitter, web_driver_wait_time)
+    results = bulk_scrape(web_driver, case_year, case_code, range_start, range_end, pause_time, jitter, jitter_time, web_driver_wait_time)
 
     # Put those results in a file
     results_json = json.dumps(results)
