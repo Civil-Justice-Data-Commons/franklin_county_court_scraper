@@ -1,5 +1,7 @@
 # A simple Windows perl script for testing batch scraping records in smaller quantities/batches
 
+use strict;
+use warnings;
 
 $start = 0;
 $end = 5000;
