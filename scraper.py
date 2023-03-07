@@ -183,7 +183,10 @@ def scrape_record(driver, year, code, case_num, wait_time):
                         for row in tqdm(temp_docket_rows, desc='Docket', colour='blue'):
                             cells = row.find_all('td')
                             if len(cells) == 4:
-                                cur_date = cells[0].text
+                                if cur_date.split('|')[0] == cells[0].text:
+                                    cur_date = f'{cells[0].text}|{int(cur_date.split("|")[1]) + 1}'
+                                else:
+                                    cur_date = f'{cells[0].text}|1'
                                 temp_case_record['docket'].setdefault(cur_date, {})
                                 temp_case_record['docket'][cur_date]['event'] = fix_blanks(cells[1].text)
                                 temp_case_record['docket'][cur_date]['amount'] = fix_blanks(cells[2].text)

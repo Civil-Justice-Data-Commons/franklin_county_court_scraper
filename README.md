@@ -69,7 +69,13 @@ The resulting json looks like this:
 			}
 		},
 		"docket" : {
-			"<DATE>" :{
+			"<DATE>|1" :{
+				"event" : "",
+				"amount" : "",
+				"balance" : "",
+				"details" : ""
+			},
+			"<DATE>|2" :{
 				"event" : "",
 				"amount" : "",
 				"balance" : "",
