@@ -106,22 +106,22 @@ def scrape_record(driver, year, code, case_num, wait_time):
                             tp_party_type_raw = tp_name.find_next('td','data')
 
                             # Work out if it's a plaintiff or defendant, if we aren't sure, skip
-                            if tp_party_type_raw == 'PLAINTIFF': tp_party_type = 'plaintiffs'
-                            elif tp_party_type_raw == 'DEFENDANT': tp_party_type = 'defendants'
+                            if tp_party_type_raw.text == 'PLAINTIFF': tp_party_type = 'plaintiffs'
+                            elif tp_party_type_raw.text == 'DEFENDANT': tp_party_type = 'defendants'
                             else: continue
-
+                            
                             # Grab the address info
                             tp_address = tp.find_next('tr').find_next('td','data')
                             tp_city = tp_address.find_next('tr').find_next('td','data')
-
+                            
                             # Some regex to mangle the state/zip string into separate fields
                             tp_state_zip_raw = tp_city.find_next('td','data')
-                            tp_state_zip_search = re.search(r'(?P<state>\D*)/(?P<zip>\d*)', tp_state_zip_raw)
+                            tp_state_zip_search = re.search(r'(?P<state>\D*)/(?P<zip>\d*)', tp_state_zip_raw.text)
                             tp_state = tp_state_zip_search.group('state')
                             tp_zip = tp_state_zip_search.group('zip')
-
+                            
                             # Store all that party data and address info in the right place in the case record
-                            temp_case_record['parties'][tp_party_type][tp_name] = {'address':tp_address, 'city':tp_city, 'state':tp_state, 'zip':tp_zip}
+                            temp_case_record['parties'][tp_party_type][tp_name.text] = {'address':tp_address.text, 'city':tp_city.text, 'state':tp_state, 'zip':tp_zip}
                     except:
                         print('Oops! No Parties!')
 
@@ -139,15 +139,15 @@ def scrape_record(driver, year, code, case_num, wait_time):
                             ta_party = ta_name.find_next('td','data')
                             # A little fiddling with the address if it has multiple lines, as they often seem to be for attorneys here
                             ta_address_raw = ta.find_next('tr').find_next('td','data')
-                            if ta_address_raw.string is None: continue
-                            ta_address = ta_address_raw.string.replace(r'<br />', r'\n')
+                            if ta_address_raw.text is None: continue
+                            ta_address = ta_address_raw.text
                             ta_city_state_zip_raw = ta_address_raw.find_next('td','data')
-                            ta_city_state_zip_search = re.search(r'(?P<city>\D*),\s(?P<state>\D*)\s(?P<zip>\d*)')
+                            ta_city_state_zip_search = re.search(r'(?P<city>\D*),\s(?P<state>\D*)\s(?P<zip>\d*)',ta_city_state_zip_raw.text)
                             ta_city = ta_city_state_zip_search.group('city')
                             ta_state = ta_city_state_zip_search.group('state')
                             ta_zip = ta_city_state_zip_search.group('zip')
                             # Store all that attorney data in the case record
-                            temp_case_record['attorneys'][ta_party] = {'name':ta_name, 'address':ta_address, 'city':ta_city, 'state':ta_state, 'zip':ta_zip}
+                            temp_case_record['attorneys'][ta_party.text] = {'name':ta_name.text, 'address':ta_address, 'city':ta_city, 'state':ta_state, 'zip':ta_zip}
                     except:
                         print('Oops! No Attorneys!')
 
